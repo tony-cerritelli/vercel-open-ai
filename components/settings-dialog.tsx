@@ -235,11 +235,25 @@ const FirecrawlIcon = ({ className }: { className?: string }) => (
 // Search Provider Options
 const searchProviders = [
   {
+    value: 'auto',
+    label: 'Automatic',
+    description: 'Configured providers first; free Parallel Search MCP when no search keys are set',
+    icon: Search,
+    default: true,
+  },
+  {
+    value: 'parallel-mcp',
+    label: 'Parallel Search MCP',
+    description: 'Free web search without an account or API key; text sources only',
+    icon: ParallelIcon,
+    default: false,
+  },
+  {
     value: 'exa',
     label: 'Exa',
     description: 'Enhanced and faster web search with images and advanced filtering',
     icon: ExaIcon,
-    default: true,
+    default: false,
   },
   {
     value: 'firecrawl',
@@ -307,9 +321,9 @@ export function PreferencesSection({
   isCustomInstructionsEnabled?: boolean;
   setIsCustomInstructionsEnabledAction?: (value: boolean | ((val: boolean) => boolean)) => void;
 }) {
-  const [searchProvider, setSearchProvider] = useSyncedPreferences<'exa' | 'parallel' | 'firecrawl'>(
+  const [searchProvider, setSearchProvider] = useSyncedPreferences<'auto' | 'parallel-mcp' | 'exa' | 'parallel' | 'firecrawl'>(
     'scira-search-provider',
-    'exa',
+    'auto',
   );
 
   const [extremeSearchModel, setExtremeSearchModel] = useSyncedPreferences<
@@ -393,16 +407,10 @@ export function PreferencesSection({
   const enabled = isCustomInstructionsEnabled ?? true;
   const setEnabled = setIsCustomInstructionsEnabledAction ?? (() => {});
 
-  const handleSearchProviderChange = (newProvider: 'exa' | 'parallel' | 'firecrawl') => {
+  const handleSearchProviderChange = (newProvider: 'auto' | 'parallel-mcp' | 'exa' | 'parallel' | 'firecrawl') => {
     setSearchProvider(newProvider);
     sileo.success({
-      title: `Search provider changed to ${
-        newProvider === 'exa'
-          ? 'Exa'
-          : newProvider === 'parallel'
-            ? 'Parallel AI'
-            : 'Firecrawl'
-      }`,
+      title: `Search provider changed to ${searchProviders.find((provider) => provider.value === newProvider)?.label}`,
       description: 'This will be used for all future searches',
       icon: <Search className="h-4 w-4" />,
     });

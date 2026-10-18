@@ -21,6 +21,8 @@ import {
 } from '@hugeicons/core-free-icons';
 import { AgentNetworkIcon } from '@/components/icons/agent-network-icon';
 import { AppsIcon } from '@/components/icons/apps-icon';
+import { searchProviderInfo, type SearchProvider } from '@/lib/search/web-search-provider';
+export { searchProviderInfo, type SearchProvider } from '@/lib/search/web-search-provider';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -58,23 +60,14 @@ export type SearchGroupId =
   | 'prediction'
   | 'canvas';
 
-// Search provider information for dynamic descriptions
-export const searchProviderInfo = {
-  parallel: 'Parallel AI',
-  exa: 'Exa, one of the best web search APIs for AI',
-  firecrawl: 'Firecrawl',
-} as const;
-
-export type SearchProvider = keyof typeof searchProviderInfo;
-
 // Function to get dynamic web search description based on selected provider
-export function getWebSearchDescription(provider: SearchProvider = 'exa'): string {
+export function getWebSearchDescription(provider: SearchProvider = 'auto'): string {
   const providerName = searchProviderInfo[provider];
   return `Search across the entire internet powered by ${providerName}`;
 }
 
 // Function to get search groups with dynamic descriptions
-export function getSearchGroups(searchProvider: SearchProvider = 'exa') {
+export function getSearchGroups(searchProvider: SearchProvider = 'auto') {
   return [
     {
       id: 'web' as const,
