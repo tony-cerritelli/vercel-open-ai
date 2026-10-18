@@ -230,7 +230,7 @@ To run the application locally without Docker:
 1. Sign up for accounts with the required AI providers:
    - OpenAI (required)
    - Anthropic (required)
-   - Exa (required for web search feature)
+   - Search providers are optional for Web mode (see below)
 2. Copy `.env.example` to `.env.local` and fill in your API keys
 3. Install dependencies:
    ```bash
@@ -241,6 +241,38 @@ To run the application locally without Docker:
    pnpm dev
    ```
 5. Open `http://localhost:3000` in your browser
+
+#### Web search providers
+
+New installations use **Automatic** in the search provider selector. Automatic
+uses configured Firecrawl, Exa, then Parallel API credentials, in that order. If
+none of `FIRECRAWL_API_KEY`, `EXA_API_KEY`, or `PARALLEL_API_KEY` is set, Web mode
+uses [Parallel Search MCP](https://docs.parallel.ai/integrations/mcp/search-mcp)
+at `https://search.parallel.ai/mcp`. This provides free web search in Fast mode
+without a search account or API key. Leave those keys unset or empty for this path.
+Other application services and model credentials are still required.
+API callers that omit the provider selector keep Exa when its key is configured.
+
+Saved provider selections stay selected. Choose **Parallel Search MCP** explicitly
+to use anonymous search even when search API keys are configured, or choose Exa,
+Firecrawl, or Parallel AI to use their existing API integrations. A configured
+provider failure never switches to anonymous MCP. An explicitly selected provider
+also never falls back to a different provider. Chat mode and tool permissions
+continue to control whether web search runs.
+
+Parallel Search MCP combines related queries into one set of cited text sources.
+It does not provide images, premium quality settings, or strict date/news filters;
+dates and topics are passed as search preferences. Keep the existing providers
+for those features. Requests support cancellation and a 20-second deadline.
+Anonymous usage is rate limited; failures are reported to the caller.
+Other search modes and URL retrieval still need their existing provider credentials.
+
+Run the focused web-search regression tests with the declared runtime dependencies
+installed:
+
+```bash
+node --conditions=react-server --test tests/web-search.test.mjs
+```
 
 # License
 

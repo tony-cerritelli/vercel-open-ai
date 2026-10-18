@@ -14,10 +14,12 @@ export const codeContextTool = tool({
     outputTokens: z.number().min(0),
   }),
   execute: async ({ query }) => {
+    const apiKey = serverEnv.EXA_API_KEY;
+    if (!apiKey?.trim()) throw new Error('Code context requires EXA_API_KEY');
     const response = await fetch('https://api.exa.ai/context', {
       method: 'POST',
       headers: {
-        'x-api-key': serverEnv.EXA_API_KEY,
+        'x-api-key': apiKey,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({

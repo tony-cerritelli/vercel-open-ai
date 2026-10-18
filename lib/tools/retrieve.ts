@@ -204,9 +204,9 @@ function formatSupadataResponse(metadata: SupadataMetadata, url: string, transcr
 
 
 const supadata = new Supadata({ apiKey: serverEnv.SUPADATA_API_KEY });
-const exa = new Exa(serverEnv.EXA_API_KEY as string);
-const parallel = new Parallel({ apiKey: serverEnv.PARALLEL_API_KEY });
-const firecrawl = new FirecrawlApp({ apiKey: serverEnv.FIRECRAWL_API_KEY });
+let exa: Exa | undefined;
+let parallel: Parallel | undefined;
+let firecrawl: FirecrawlApp | undefined;
 
 // Helper function to retrieve content from a single URL
 async function retrieveSingleUrl(
@@ -404,6 +404,8 @@ async function retrieveSingleUrl(
     let source = 'exa';
 
     try {
+      if (!serverEnv.EXA_API_KEY?.trim()) throw new Error('URL retrieval with Exa requires EXA_API_KEY');
+      exa ??= new Exa(serverEnv.EXA_API_KEY);
       result = await exa.getContents([url], {
         text: true,
         summary: include_summary ? true : undefined,
@@ -422,6 +424,8 @@ async function retrieveSingleUrl(
 
     if (usingParallel) {
       try {
+        if (!serverEnv.PARALLEL_API_KEY?.trim()) throw new Error('URL retrieval with Parallel requires PARALLEL_API_KEY');
+        parallel ??= new Parallel({ apiKey: serverEnv.PARALLEL_API_KEY });
         console.log(`Trying Parallel extract for ${url}`);
         const parallelResult = await parallel.beta.extract({
           urls: [url],
@@ -466,6 +470,8 @@ async function retrieveSingleUrl(
     if (usingFirecrawl) {
       const urlWithoutHttps = url.replace(/^https?:\/\//, '');
       try {
+        if (!serverEnv.FIRECRAWL_API_KEY?.trim()) throw new Error('URL retrieval with Firecrawl requires FIRECRAWL_API_KEY');
+        firecrawl ??= new FirecrawlApp({ apiKey: serverEnv.FIRECRAWL_API_KEY });
         const scrapeResponse = await firecrawl.scrape(urlWithoutHttps, {
           parsers: ['pdf'],
           proxy: 'auto',
